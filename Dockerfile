@@ -1,11 +1,12 @@
-FROM        centos:8
+FROM        centos:7
 
 WORKDIR     /dashdotcollector
 
 COPY        . ./
-COPY        oc /usr/bin
 
-RUN         dnf -y install python36
+RUN         yum install -y epel-release
+RUN         yum install -y centos-release-openshift-origin
+RUN         yum install -y python36 origin-clients
 RUN         pip3 install .
 
 WORKDIR     /tmp
