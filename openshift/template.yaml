@@ -77,6 +77,11 @@ objects:
               value: http://dashdotdb.dashdot.svc.cluster.local/api/v1
             - name: RABBITMQ_URL
               value: pyamqp://guest@dashdotcollector-queue.dashdot.svc.cluster.local//
+            - name: ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: ${tokenSecret}
+                  key: ACCESS_TOKEN
 - apiVersion: apps/v1
   kind: Deployment
   metadata:
@@ -108,6 +113,11 @@ objects:
               value: http://dashdotdb.dashdot.svc.cluster.local/api/v1
             - name: RABBITMQ_URL
               value: pyamqp://guest@dashdotcollector-queue.dashdot.svc.cluster.local//
+            - name: ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: ${tokenSecret}
+                  key: ACCESS_TOKEN
 - apiVersion: apps/v1
   kind: DeploymentConfig
   metadata:
@@ -144,35 +154,35 @@ objects:
           name: dashdotcollector-flower-oauth2-proxy
           env:
           - name: OAUTH2_PROXY_PROVIDER
-              valueFrom:
-                secretKeyRef:
-                  name: oauth2-proxy
-                  key: oauth2.proxy.provider
+            valueFrom:
+              secretKeyRef:
+                name: ${oauth2ProxySecret}
+                key: oauth2.proxy.provider
           - name: OAUTH2_PROXY_GITHUB_ORG
-              valueFrom:
-                secretKeyRef:
-                  name: oauth2-proxy
-                  key: oauth2.proxy.github.org
+            valueFrom:
+              secretKeyRef:
+                name: ${oauth2ProxySecret}
+                key: oauth2.proxy.github.org
           - name: OAUTH2_PROXY_REDIRECT_URL
-              valueFrom:
-                secretKeyRef:
-                  name: oauth2-proxy
-                  key: oauth2.proxy.redirect.url
+            valueFrom:
+              secretKeyRef:
+                name: ${oauth2ProxySecret}
+                key: oauth2.proxy.redirect.url
           - name: OAUTH2_PROXY_COOKIE_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: oauth2-proxy
-                  key: oauth2.proxy.cookie.secret
+            valueFrom:
+              secretKeyRef:
+                name: ${oauth2ProxySecret}
+                key: oauth2.proxy.cookie.secret
           - name: OAUTH2_PROXY_CLIENT_ID
-              valueFrom:
-                secretKeyRef:
-                  name: oauth2-proxy
-                  key: oauth2.proxy.client.id
+            valueFrom:
+              secretKeyRef:
+                name: ${oauth2ProxySecret}
+                key: oauth2.proxy.client.id
           - name: OAUTH2_PROXY_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: oauth2-proxy
-                  key: oauth2.proxy.client.secret
+            valueFrom:
+              secretKeyRef:
+                name: ${oauth2ProxySecret}
+                key: oauth2.proxy.client.secret
           args:
           - -http-address=0.0.0.0:4180
           - -email-domain=*
@@ -207,3 +217,7 @@ parameters:
   value: quay.io/pusher/oauth2_proxy
 - name: IMAGE_OAUTH2_PROXY_TAG
   value: v4.0.0-amd64
+- name: tokenSecret
+  value: access-token
+- name: oauth2ProxySecret
+  value: oauth2-proxy-stage
