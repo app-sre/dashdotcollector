@@ -8,8 +8,8 @@ objects:
   kind: Deployment
   metadata:
     labels:
-      app: dashdotcollector-queue
-    name: dashdotcollector-queue
+      app: dashdotqueue
+    name: dashdotqueue
   spec:
     replicas: 1
     strategy:
@@ -19,25 +19,25 @@ objects:
         maxSurge: 1
     selector:
       matchLabels:
-        app: dashdotcollector-queue
+        app: dashdotqueue
     template:
       metadata:
         labels:
-          app: dashdotcollector-queue
+          app: dashdotqueue
       spec:
         containers:
         - image: quay.io/app-sre/rabbitmq
           imagePullPolicy: Always
-          name: dashdotcollector-queue
+          name: dashdotqueue
           ports:
-          - name: dashdotcollector-queue
+          - name: dashdotqueue
             containerPort: 5672
 - apiVersion: v1
   kind: Service
   metadata:
-    name: dashdotcollector-queue
+    name: dashdotqueue
     labels:
-      app: dashdotcollector-queue
+      app: dashdotqueue
   spec:
     ports:
       - protocol: TCP
@@ -50,8 +50,8 @@ objects:
   kind: Deployment
   metadata:
     labels:
-      app: dashdotcollector-sched
-    name: dashdotcollector-sched
+      app: dashdotsched
+    name: dashdotsched
   spec:
     replicas: 1
     strategy:
@@ -61,22 +61,22 @@ objects:
         maxSurge: 1
     selector:
       matchLabels:
-        app: dashdotcollector-sched
+        app: dashdotsched
     template:
       metadata:
         labels:
-          app: dashdotcollector-sched
+          app: dashdotsched
       spec:
         containers:
         - image: ${IMAGE}:${IMAGE_TAG}
           imagePullPolicy: Always
-          name: dashdotcollector-sched
+          name: dashdotsched
           args: ["beat"]
           env:
             - name: DASHDOTDB_URL
               value: http://dashdotdb.dashdot.svc.cluster.local/api/v1
             - name: RABBITMQ_URL
-              value: pyamqp://guest@dashdotcollector-queue.dashdot.svc.cluster.local//
+              value: pyamqp://guest@dashdotqueue.dashdot.svc.cluster.local//
             - name: ACCESS_TOKEN
               valueFrom:
                 secretKeyRef:
@@ -86,8 +86,8 @@ objects:
   kind: Deployment
   metadata:
     labels:
-      app: dashdotcollector-worker
-    name: dashdotcollector-worker
+      app: dashdotworker
+    name: dashdotworker
   spec:
     replicas: 1
     strategy:
@@ -97,33 +97,33 @@ objects:
         maxSurge: 1
     selector:
       matchLabels:
-        app: dashdotcollector-worker
+        app: dashdotworker
     template:
       metadata:
         labels:
-          app: dashdotcollector-worker
+          app: dashdotworker
       spec:
         containers:
         - image: ${IMAGE}:${IMAGE_TAG}
           imagePullPolicy: Always
-          name: dashdotcollector-worker
+          name: dashdotworker
           args: ["worker"]
           env:
             - name: DASHDOTDB_URL
               value: http://dashdotdb.dashdot.svc.cluster.local/api/v1
             - name: RABBITMQ_URL
-              value: pyamqp://guest@dashdotcollector-queue.dashdot.svc.cluster.local//
+              value: pyamqp://guest@dashdotqueue.dashdot.svc.cluster.local//
             - name: ACCESS_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: ${tokenSecret}
                   key: ACCESS_TOKEN
 - apiVersion: apps/v1
-  kind: DeploymentConfig
+  kind: Deployment
   metadata:
     labels:
-      app: dashdotcollector-flower
-    name: dashdotcollector-flower
+      app: dashdotflower
+    name: dashdotflower
   spec:
     replicas: 1
     strategy:
@@ -133,25 +133,25 @@ objects:
         maxSurge: 1
     selector:
       matchLabels:
-        app: dashdotcollector-flower
+        app: dashdotflower
     template:
       metadata:
         labels:
-          app: dashdotcollector-flower
+          app: dashdotflower
       spec:
         containers:
         - image: ${IMAGE}:${IMAGE_TAG}
           imagePullPolicy: Always
-          name: dashdotcollector-flower
+          name: dashdotflower
           args: ["flower"]
           env:
             - name: DASHDOTDB_URL
               value: http://dashdotdb.dashdot.svc.cluster.local/api/v1
             - name: RABBITMQ_URL
-              value: pyamqp://guest@dashdotcollector-queue.dashdot.svc.cluster.local//
+              value: pyamqp://guest@dashdotqueue.dashdot.svc.cluster.local//
         - image: ${IMAGE_OAUTH2_PROXY}:${IMAGE_OAUTH2_PROXY_TAG}
           imagePullPolicy: Always
-          name: dashdotcollector-flower-oauth2-proxy
+          name: dashdotflower-oauth2-proxy
           env:
           - name: OAUTH2_PROXY_PROVIDER
             valueFrom:
@@ -198,7 +198,7 @@ objects:
   metadata:
     name: oauth2-proxy
     labels:
-      app: dashdotcollector-flower
+      app: dashdotflower
   spec:
     type: ClusterIP
     ports:
@@ -207,7 +207,7 @@ objects:
         targetPort: 4180
         protocol: TCP
     selector:
-      deploymentconfig: dashdotcollector-flower
+      app: dashdotflower
 parameters:
 - name: IMAGE
   value: quay.io/app-sre/dashdotcollector
