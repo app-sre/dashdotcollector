@@ -1,4 +1,4 @@
-IMAGEMANIFESTVULN = """{
+IMAGEMANIFESTVULN = r"""{
     "apiVersion": "v1",
     "items": [
         {
