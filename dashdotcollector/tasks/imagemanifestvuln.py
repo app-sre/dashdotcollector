@@ -56,6 +56,7 @@ def sync(cluster):
     # imagemanifestvln = oc_cli.get_all('imagemanifestvuln')
     imagemanifestvln = json.loads(IMAGEMANIFESTVULN)
     endpoint = f'{ENDPOINT}/imagemanifestvuln/{cluster}'
-    res = requests.post(url=endpoint, json=imagemanifestvln)
+    headers = {'Authorization': f'token: {os.environ["ACCESS_TOKEN"]}'}
+    res = requests.post(url=endpoint, json=imagemanifestvln, headers=headers)
     res.raise_for_status()
     return f"cluster {cluster} synced"
