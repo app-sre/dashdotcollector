@@ -23,7 +23,7 @@ setup(name='dashdotdb',
             'Programming Language :: Python :: 3.8',
       ],
       install_requires=[
-            'graphqlclient==0.2.4',
+            "gql==3.1.0",
             'celery==4.4.2',
             'requests==2.23.0',
             'flower==0.9.4',
